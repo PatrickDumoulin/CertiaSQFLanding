@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Certia SQF — Assistant IA de Conformité</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy-950: #020d1f;
+      --navy-900: #040f24;
+      --navy-800: #071428;
+      --navy-700: #0a1e3d;
+      --navy-600: #0d2654;
+      --blue-600: #2563eb;
+      --blue-500: #3b82f6;
+      --blue-400: #60a5fa;
+      --blue-300: #93c5fd;
+      --cyan-500: #06b6d4;
+      --cyan-400: #22d3ee;
+      --white: #ffffff;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glow-blue: rgba(37, 99, 235, 0.35);
+      --glow-cyan: rgba(6, 182, 212, 0.25);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--navy-950);
+      color: var(--white);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 2rem;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(2, 13, 31, 0.7);
+      border-bottom: 1px solid var(--glass-border);
+      transition: background 0.3s;
+    }
+
+    .nav-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    .nav-logo .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.55rem;
+      background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
+      border-radius: 6px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--white);
+      -webkit-text-fill-color: var(--white);
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+
+    .lang-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--gray-500);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.06em;
+      transition: border-color 0.2s;
+    }
+    .lang-toggle:hover { border-color: rgba(255,255,255,0.2); }
+    .lang-toggle .lang-active { color: var(--white); }
+    .lang-toggle .lang-sep { color: var(--glass-border); }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 1.5rem 6rem;
+      overflow: hidden;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    .blob-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(37,99,235,0.45) 0%, transparent 70%);
+      top: -100px; left: -150px;
+      animation: drift1 14s ease-in-out infinite alternate;
+    }
+    .blob-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(6,182,212,0.35) 0%, transparent 70%);
+      bottom: -80px; right: -100px;
+      animation: drift2 17s ease-in-out infinite alternate;
+    }
+    .blob-3 {
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+      top: 40%; left: 55%;
+      animation: drift3 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(80px,60px) scale(1.1); } }
+    @keyframes drift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-60px,-80px) scale(1.15); } }
+    @keyframes drift3 { from { transform: translate(0,0) scale(1); } to { transform: translate(-40px,50px) scale(0.9); } }
+
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(37,99,235,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37,99,235,0.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(37,99,235,0.15);
+      border: 1px solid rgba(37,99,235,0.4);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--blue-400);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.7s ease both;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 8px; height: 8px;
+      background: var(--cyan-400);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--cyan-400);
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.6; transform:scale(0.8); } }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      max-width: 900px;
+      animation: fadeUp 0.7s ease 0.1s both;
+    }
+    .hero h1 .gradient-text {
+      background: linear-gradient(90deg, var(--blue-400) 0%, var(--cyan-400) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--gray-400);
+      max-width: 620px;
+      line-height: 1.7;
+      animation: fadeUp 0.7s ease 0.2s both;
+    }
+    .hero-sub strong { color: var(--white); font-weight: 600; }
+
+    .hero-actions {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.7s ease 0.3s both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.95rem 2rem;
+      background: linear-gradient(135deg, var(--blue-600), var(--cyan-500));
+      color: var(--white);
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 0 40px rgba(37,99,235,0.5), 0 8px 24px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(37,99,235,0.65), 0 12px 32px rgba(0,0,0,0.35); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.95rem 2rem;
+      background: var(--glass-bg);
+      color: var(--white);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+
+    .hero-stats {
+      margin-top: 4rem;
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.7s ease 0.4s both;
+    }
+    .stat { text-align: center; }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(90deg, var(--blue-400), var(--cyan-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--gray-400); margin-top: 0.25rem; letter-spacing: 0.03em; }
+    .stat-divider { width: 1px; background: var(--glass-border); align-self: stretch; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ── SECTION BASE ── */
+    section { position: relative; z-index: 1; }
+
+    .section-tag {
+      display: inline-block;
+      padding: 0.35rem 0.9rem;
+      background: rgba(37,99,235,0.12);
+      border: 1px solid rgba(37,99,235,0.3);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--blue-400);
+      margin-bottom: 1rem;
+    }
+
+    .section-title { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+    .section-sub { margin-top: 1rem; font-size: 1.05rem; color: var(--gray-400); max-width: 560px; line-height: 1.7; }
+
+    /* ── PAIN ── */
+    .pain { padding: 6rem 1.5rem; background: linear-gradient(180deg, var(--navy-950) 0%, var(--navy-900) 100%); }
+    .pain-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+
+    .pain-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+    .pain-item {
+      display: flex; align-items: flex-start; gap: 1rem;
+      padding: 1.1rem 1.25rem;
+      background: rgba(239,68,68,0.05);
+      border: 1px solid rgba(239,68,68,0.12);
+      border-radius: 12px;
+      font-size: 0.95rem; color: var(--gray-200); line-height: 1.5;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .pain-item:hover { background: rgba(239,68,68,0.09); border-color: rgba(239,68,68,0.22); }
+    .pain-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+    .pain-visual { position: relative; }
+    .pain-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem; backdrop-filter: blur(20px); }
+    .pain-card-title { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 1.5rem; }
+
+    .time-bar-wrap { display: flex; flex-direction: column; gap: 0.9rem; }
+    .time-bar-row { display: flex; flex-direction: column; gap: 0.4rem; }
+    .time-bar-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--gray-400); }
+    .time-bar-meta span:last-child { font-weight: 700; color: var(--white); }
+    .time-bar-track { height: 8px; background: rgba(255,255,255,0.07); border-radius: 100px; overflow: hidden; }
+    .time-bar-fill { height: 100%; border-radius: 100px; transition: width 1.5s cubic-bezier(.25,.8,.25,1); }
+    .fill-red  { background: linear-gradient(90deg,#ef4444,#dc2626); }
+    .fill-blue { background: linear-gradient(90deg, var(--blue-500), var(--cyan-500)); }
+
+    .pain-card-footer { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; }
+    .saving-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); border-radius: 8px; font-size: 0.85rem; font-weight: 700; color: #34d399; }
+
+    /* ── FEATURES ── */
+    .features { padding: 6rem 1.5rem; background: var(--navy-950); }
+    .features-header { text-align: center; max-width: 700px; margin: 0 auto 4rem; }
+    .features-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+
+    .feature-card {
+      position: relative; padding: 2.25rem;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 20px; backdrop-filter: blur(20px);
+      overflow: hidden; transition: transform 0.3s, border-color 0.3s;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(37,99,235,0.08) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    .feature-card:hover { transform: translateY(-4px); border-color: rgba(37,99,235,0.3); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card.featured { grid-column: span 2; background: linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(6,182,212,0.06) 100%); border-color: rgba(37,99,235,0.25); }
+
+    .feature-icon-wrap { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 14px; margin-bottom: 1.5rem; font-size: 1.5rem; }
+    .icon-blue   { background: rgba(37,99,235,0.2);  border: 1px solid rgba(37,99,235,0.3); }
+    .icon-cyan   { background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3); }
+    .icon-green  { background: rgba(16,185,129,0.15);border: 1px solid rgba(16,185,129,0.3); }
+    .icon-purple { background: rgba(139,92,246,0.15);border: 1px solid rgba(139,92,246,0.3); }
+
+    .feature-num { position: absolute; top: 1.5rem; right: 1.75rem; font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none; }
+    .feature-name { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.75rem; line-height: 1.3; }
+    .feature-desc { font-size: 0.92rem; color: var(--gray-400); line-height: 1.7; }
+    .feature-tag { display: inline-block; margin-top: 1.25rem; padding: 0.3rem 0.75rem; background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.2); border-radius: 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue-400); }
+
+    .feature-bullets { margin-top: 1rem; list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .feature-bullets li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; color: var(--gray-300); }
+    .feature-bullets li::before { content: '✓'; font-size: 0.75rem; font-weight: 900; color: var(--cyan-400); background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.2); width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    /* ── HOW IT WORKS ── */
+    .how { padding: 6rem 1.5rem; background: var(--navy-900); }
+    .how-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+
+    .steps { margin-top: 4rem; display: flex; gap: 0; position: relative; }
+    .steps::before { content: ''; position: absolute; top: 28px; left: calc(16.66% + 28px); right: calc(16.66% + 28px); height: 2px; background: linear-gradient(90deg, var(--blue-600), var(--cyan-500)); z-index: 0; }
+
+    .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 0 1rem; }
+    .step-dot { position: relative; z-index: 1; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--blue-600), var(--cyan-500)); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 800; box-shadow: 0 0 30px rgba(37,99,235,0.5); flex-shrink: 0; }
+    .step-title { font-size: 0.95rem; font-weight: 700; }
+    .step-desc { font-size: 0.82rem; color: var(--gray-400); line-height: 1.6; }
+
+    /* ── PRICING ── */
+    .pricing { padding: 6rem 1.5rem; background: var(--navy-950); }
+    .pricing-inner { max-width: 1100px; margin: 0 auto; }
+    .pricing-header { text-align: center; margin-bottom: 3.5rem; }
+
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1.5rem;
+      align-items: center;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    .price-card { padding: 2.25rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 20px; text-align: center; }
+    .price-card.main {
+      background: linear-gradient(160deg, rgba(37,99,235,0.18) 0%, rgba(6,182,212,0.08) 100%);
+      border-color: rgba(37,99,235,0.4);
+      box-shadow: 0 0 80px rgba(37,99,235,0.2), 0 24px 64px rgba(0,0,0,0.3);
+      padding: 3rem 2.5rem;
+    }
+
+    .price-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 1rem; }
+    .price-pill { display: inline-block; padding: 0.35rem 0.85rem; background: linear-gradient(135deg, var(--blue-600), var(--cyan-500)); border-radius: 100px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.5rem; }
+
+    .price-amount { font-size: 3.25rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1; }
+    .price-amount sup { font-size: 1.25rem; font-weight: 700; vertical-align: top; margin-top: 0.5rem; display: inline-block; color: var(--gray-400); }
+    .price-period { font-size: 0.85rem; color: var(--gray-500); margin-top: 0.35rem; }
+
+    .price-checklist { list-style: none; margin: 2rem 0; display: flex; flex-direction: column; gap: 0.75rem; text-align: left; }
+    .price-checklist li { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--gray-200); }
+    .check-icon { width: 22px; height: 22px; border-radius: 50%; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #34d399; flex-shrink: 0; }
+
+    .price-note { font-size: 0.78rem; color: var(--gray-500); margin-top: 0.75rem; }
+    .price-side-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .price-side-desc { font-size: 0.85rem; color: var(--gray-400); line-height: 1.6; }
+
+    /* ── SECURITY / FAQ ── */
+    .security { padding: 6rem 1.5rem; background: var(--navy-900); }
+    .security-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+
+    .security-badges { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2.5rem; }
+    .sec-badge { padding: 1.25rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; transition: border-color 0.2s; }
+    .sec-badge:hover { border-color: rgba(37,99,235,0.25); }
+    .sec-badge-icon { font-size: 1.5rem; margin-bottom: 0.6rem; }
+    .sec-badge-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .sec-badge-desc { font-size: 0.77rem; color: var(--gray-500); line-height: 1.5; }
+
+    .faq { display: flex; flex-direction: column; gap: 1rem; }
+    .faq-item { border: 1px solid var(--glass-border); border-radius: 14px; overflow: hidden; }
+    .faq-q { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 1.25rem; background: var(--glass-bg); color: var(--white); font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; text-align: left; transition: background 0.2s; }
+    .faq-q:hover { background: rgba(255,255,255,0.06); }
+    .faq-chevron { font-size: 0.75rem; color: var(--gray-400); transition: transform 0.25s; flex-shrink: 0; }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.25s; }
+    .faq-item.open .faq-a { max-height: 300px; }
+    .faq-a-inner { padding: 0 1.25rem 1.1rem; font-size: 0.875rem; color: var(--gray-400); line-height: 1.7; }
+
+    /* ── CTA FOOTER ── */
+    .cta-footer { padding: 7rem 1.5rem; background: var(--navy-950); text-align: center; position: relative; overflow: hidden; }
+    .cta-blob { position: absolute; width: 800px; height: 800px; border-radius: 50%; background: radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 65%); left: 50%; top: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+    .cta-footer h2 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: -0.02em; max-width: 700px; margin: 0 auto; }
+    .cta-footer p { margin: 1.25rem auto 0; max-width: 500px; color: var(--gray-400); font-size: 1.05rem; line-height: 1.7; }
+    .cta-footer .hero-actions { margin-top: 3rem; }
+
+    /* ── FOOTER ── */
+    footer { padding: 2.5rem 1.5rem; border-top: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; background: var(--navy-950); }
+    footer a { color: var(--gray-500); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+    footer a:hover { color: var(--white); }
+    .footer-copy { font-size: 0.8rem; color: var(--gray-500); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .pain-inner, .security-inner { grid-template-columns: 1fr; gap: 3rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card.featured { grid-column: span 1; }
+      .pricing-cards { grid-template-columns: 1fr; }
+      .steps { flex-direction: column; align-items: flex-start; gap: 2rem; }
+      .steps::before { display: none; }
+      .step { flex-direction: row; text-align: left; }
+      .security-badges { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      nav { padding: 0 1rem; }
+      .hero { padding: 7rem 1rem 5rem; }
+      .hero-stats { gap: 1.5rem; }
+      .stat-divider { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════ NAV ══ -->
+<nav>
+  <a class="nav-logo" href="#">CERTIA <span class="logo-badge">SQF</span></a>
+  <div class="nav-right">
+    <button class="lang-toggle" onclick="toggleLang()" aria-label="Toggle language">
+      <span id="lang-btn-fr" class="lang-active">FR</span>
+      <span class="lang-sep">|</span>
+      <span id="lang-btn-en">EN</span>
+    </button>
+    <a class="nav-cta" href="#demo">
+      <span data-i18n="nav-cta">Réserver une démo</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════ HERO ══ -->
+<section class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-badge" data-i18n="hero-badge">Propulsé par l'IA · SQF Édition 9</div>
+
+  <h1 data-i18n-html="hero-h1">
+    Préparez votre prochain<br>audit SQF en
+    <span class="gradient-text">4&times; moins de temps.</span>
+  </h1>
+
+  <p class="hero-sub" data-i18n-html="hero-sub">
+    L'assistant IA qui scanne votre SharePoint pour éliminer les non-conformités.<br>
+    <strong>Simple, sécurisé, pour 400&nbsp;$ / mois. Implémentation en quelques jours.</strong>
+  </p>
+
+  <div class="hero-actions">
+    <a class="btn-primary" href="#demo">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.969A1 1 0 0121 8v8a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+      <span data-i18n="hero-btn1">Réserver une démo flash (15 min)</span>
+    </a>
+    <a class="btn-secondary" href="#features">
+      <span data-i18n="hero-btn2">Voir les fonctionnalités</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+    </a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-value">75 %</div>
+      <div class="stat-label" data-i18n="stat-1">Réduction du temps de révision</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-value">Éd. 9</div>
+      <div class="stat-label" data-i18n="stat-2">Norme SQF couverte</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-value">100&nbsp;%</div>
+      <div class="stat-label" data-i18n="stat-3">Contrôle humain conservé</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-value">M365</div>
+      <div class="stat-label" data-i18n="stat-4">SharePoint / OneDrive natif</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ PAIN ══ -->
+<section class="pain">
+  <div class="pain-inner">
+    <div class="reveal">
+      <div class="section-tag" data-i18n="pain-tag">Le Problème</div>
+      <h2 class="section-title" data-i18n="pain-title">La conformité SQF ne devrait pas coûter des semaines de travail.</h2>
+      <p class="section-sub" data-i18n="pain-sub">Chaque année, votre équipe qualité perd des semaines entières à comparer ligne par ligne vos procédures avec la norme SQF. C'est lent, frustrant, et source d'erreurs.</p>
+
+      <ul class="pain-list">
+        <li class="pain-item"><span class="pain-icon">⏳</span><span data-i18n="pain-i1">60+ heures de relecture manuelle et répétitive par cycle d'audit</span></li>
+        <li class="pain-item"><span class="pain-icon">🔍</span><span data-i18n="pain-i2">Comparaison humaine laborieuse entre documents internes et la norme</span></li>
+        <li class="pain-item"><span class="pain-icon">😤</span><span data-i18n="pain-i3">Travail frustrant qui prive l'équipe de tâches à haute valeur ajoutée</span></li>
+        <li class="pain-item"><span class="pain-icon">⚠️</span><span data-i18n="pain-i4">Risque d'oubli ou d'omission détecté trop tard — lors de l'audit</span></li>
+        <li class="pain-item"><span class="pain-icon">📅</span><span data-i18n="pain-i5">Processus étalé sur toute l'année, sans vue d'ensemble claire</span></li>
+      </ul>
+    </div>
+
+    <div class="reveal pain-visual">
+      <div class="pain-card">
+        <div class="pain-card-title" data-i18n="card-title">Temps de révision — Avant vs Après</div>
+        <div class="time-bar-wrap">
+          <div class="time-bar-row">
+            <div class="time-bar-meta">
+              <span data-i18n="bar-1">Révision manuelle traditionnelle</span>
+              <span>60+ hrs</span>
+            </div>
+            <div class="time-bar-track"><div class="time-bar-fill fill-red" style="width:90%"></div></div>
+          </div>
+          <div class="time-bar-row">
+            <div class="time-bar-meta">
+              <span data-i18n="bar-2">Avec l'Assistant IA SQF</span>
+              <span>~12 hrs</span>
+            </div>
+            <div class="time-bar-track"><div class="time-bar-fill fill-blue" style="width:20%"></div></div>
+          </div>
+          <div class="time-bar-row">
+            <div class="time-bar-meta">
+              <span data-i18n="bar-3">Analyse initiale des écarts</span>
+              <span>&lt; 30 min</span>
+            </div>
+            <div class="time-bar-track"><div class="time-bar-fill fill-blue" style="width:4%"></div></div>
+          </div>
+        </div>
+        <div class="pain-card-footer">
+          <div>
+            <div style="font-size:0.75rem;color:var(--gray-500);" data-i18n="saving-label">Économie de temps estimée</div>
+            <div style="font-size:1.25rem;font-weight:800;color:var(--white);" data-i18n="saving-value">48 heures / audit</div>
+          </div>
+          <div class="saving-badge" data-i18n="saving-badge">↓ 80 % de temps</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ FEATURES ══ -->
+<section class="features" id="features">
+  <div class="features-header reveal">
+    <div class="section-tag" data-i18n="feat-tag">Fonctionnalités</div>
+    <h2 class="section-title" data-i18n="feat-title">Tout ce dont votre équipe qualité a besoin. Rien de plus.</h2>
+    <p class="section-sub" data-i18n="feat-sub">Quatre piliers conçus pour éliminer les non-conformités sans perturber vos opérations ni votre infrastructure TI existante.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card featured reveal">
+      <span class="feature-num">01</span>
+      <div style="display:flex;align-items:flex-start;gap:1.5rem;flex-wrap:wrap">
+        <div>
+          <div class="feature-icon-wrap icon-blue">🔬</div>
+          <div class="feature-tag" data-i18n="f1-tag">Feature principale</div>
+          <h3 class="feature-name" style="margin-top:0.75rem;font-size:1.35rem;" data-i18n-html="f1-title">Audit de Conformité Automatisé<br><span style="color:var(--blue-400);">SQF Édition 9/10</span></h3>
+          <p class="feature-desc" style="max-width:580px;" data-i18n="f1-desc">L'assistant croise instantanément l'ensemble de vos manuels qualité, procédures et programmes préalables avec les exigences strictes de la norme SQF. Il détecte les écarts, les formulations floues ou les clauses manquantes en quelques minutes plutôt qu'en plusieurs semaines.</p>
+        </div>
+        <ul class="feature-bullets" style="min-width:240px;margin-top:1rem">
+          <li data-i18n="f1-b1">Analyse croisée complète des documents</li>
+          <li data-i18n="f1-b2">Détection des clauses manquantes</li>
+          <li data-i18n="f1-b3">Signalement des formulations non conformes</li>
+          <li data-i18n="f1-b4">Rapport structuré par section SQF</li>
+          <li data-i18n="f1-b5">Mise à jour automatique vers l'édition 10</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature-card reveal">
+      <span class="feature-num">02</span>
+      <div class="feature-icon-wrap icon-cyan">☁️</div>
+      <h3 class="feature-name" data-i18n="f2-title">Synchronisation SharePoint &amp; OneDrive Sécurisée</h3>
+      <p class="feature-desc" data-i18n="f2-desc">Pas de logiciel à installer, pas de serveurs à configurer, et surtout : aucun document à déplacer. L'assistant se connecte de manière sécurisée à votre environnement Microsoft 365 existant en 3 clics. Vos documents restent là où ils sont.</p>
+      <div class="feature-tag" data-i18n="f2-tag">Zéro friction TI</div>
+    </div>
+
+    <div class="feature-card reveal">
+      <span class="feature-num">03</span>
+      <div class="feature-icon-wrap icon-purple">📋</div>
+      <h3 class="feature-name" data-i18n="f3-title">Interface de Révision avec Human-in-the-Loop</h3>
+      <p class="feature-desc" data-i18n="f3-desc">Un tableau de bord clair qui liste chaque point à corriger sous forme d'alertes visuelles. L'IA agit comme un relecteur ultra-précis : elle signale et suggère, mais ne modifie jamais vos documents d'origine. Votre équipe garde le contrôle final à 100 %.</p>
+      <div class="feature-tag" data-i18n="f3-tag">Contrôle humain total</div>
+    </div>
+
+    <div class="feature-card reveal">
+      <span class="feature-num">04</span>
+      <div class="feature-icon-wrap icon-green">🔒</div>
+      <h3 class="feature-name" data-i18n="f4-title">Protection Étanche des Données — Enterprise Grade</h3>
+      <p class="feature-desc" data-i18n="f4-desc">Les données de votre usine sont strictement confidentielles. Aucun de vos documents ou procédures n'est partagé, stocké de façon permanente à l'extérieur de votre infrastructure, ou utilisé pour entraîner des modèles d'intelligence artificielle publics.</p>
+      <div class="feature-tag" data-i18n="f4-tag">Conformité données</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ HOW IT WORKS ══ -->
+<section class="how">
+  <div class="how-inner">
+    <div class="reveal" style="text-align:center">
+      <div class="section-tag" data-i18n="how-tag">Comment ça marche</div>
+      <h2 class="section-title" data-i18n="how-title">Opérationnel en 3 étapes</h2>
+      <p class="section-sub" style="margin:1rem auto 0" data-i18n="how-sub">De la connexion à votre premier rapport de non-conformités, en seulement quelques jours.</p>
+    </div>
+
+    <div class="steps reveal" style="margin-top:4rem">
+      <div class="step">
+        <div class="step-dot">☁️</div>
+        <div>
+          <div class="step-title" data-i18n="s1-title">Connexion Microsoft 365</div>
+          <p class="step-desc" data-i18n="s1-desc">Autorisez l'accès sécurisé à votre SharePoint/OneDrive en 3 clics. Zéro installation, zéro déplacement de fichiers.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">🔬</div>
+        <div>
+          <div class="step-title" data-i18n="s2-title">Analyse IA automatique</div>
+          <p class="step-desc" data-i18n="s2-desc">L'assistant scanne tous vos documents et les croise avec la norme SQF. L'analyse complète prend moins de 30 minutes.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-dot">📋</div>
+        <div>
+          <div class="step-title" data-i18n="s3-title">Rapport d'écarts clair</div>
+          <p class="step-desc" data-i18n="s3-desc">Votre équipe reçoit un tableau de bord précis listant chaque non-conformité à corriger, priorisée et contextualisée.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ PRICING ══ -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-header reveal">
+      <div class="section-tag" data-i18n="pr-tag">Tarification</div>
+      <h2 class="section-title" data-i18n="pr-title">Un seul plan. Tout inclus.</h2>
+      <p class="section-sub" style="margin:1rem auto 0" data-i18n="pr-sub">Pas de surprises. Pas de frais cachés. Un abonnement mensuel qui couvre tout ce dont vous avez besoin pour rester en conformité.</p>
+    </div>
+
+    <div class="pricing-cards reveal">
+
+      <!-- Main card -->
+      <div class="price-card main">
+        <div class="price-pill" data-i18n="pr-pill">⚡ Plan Unique</div>
+        <div class="price-label" style="color:var(--blue-400)" data-i18n="pr-label">Abonnement mensuel</div>
+        <div class="price-amount"><sup>$</sup>400</div>
+        <div class="price-period" data-i18n="pr-period">par mois + taxes</div>
+
+        <ul class="price-checklist">
+          <li><span class="check-icon">✓</span><span data-i18n="pr-i1">Connexion SharePoint incluse</span></li>
+          <li><span class="check-icon">✓</span><span data-i18n="pr-i2">Analyses illimitées</span></li>
+          <li><span class="check-icon">✓</span><span data-i18n="pr-i3">Mises à jour vers SQF Édition 10</span></li>
+          <li><span class="check-icon">✓</span><span data-i18n="pr-i4">Tableau de bord Human-in-the-Loop</span></li>
+          <li><span class="check-icon">✓</span><span data-i18n="pr-i5">Support prioritaire</span></li>
+          <li><span class="check-icon">✓</span><span data-i18n="pr-i6">Sécurité Enterprise-Grade</span></li>
+          <li><span class="check-icon">✓</span><span data-i18n="pr-i7">Aucune donnée partagée à l'extérieur</span></li>
+          <li><span class="check-icon">✓</span><span data-i18n="pr-i8">Implémentation en quelques jours</span></li>
+        </ul>
+
+        <a class="btn-primary" href="#demo" style="width:100%;justify-content:center;margin-top:0.5rem">
+          <span data-i18n="pr-btn">Démarrer maintenant</span>
+        </a>
+        <div class="price-note" style="margin-top:1rem" data-i18n="pr-note">Sans engagement · Annulable en tout temps</div>
+      </div>
+
+      <!-- Right card -->
+      <div class="price-card">
+        <div class="price-label" data-i18n="pr-more-label">Besoin de plus ?</div>
+        <p class="price-side-desc" style="margin-top:0.5rem" data-i18n="pr-more-desc">Support additionnel, extensions de fonctionnalités, formation d'équipe ou intégration de nouvelles normes ISO — nous pouvons discuter d'un forfait personnalisé.</p>
+        <a class="btn-secondary" href="#demo" style="margin-top:1.5rem;width:100%;justify-content:center;font-size:0.875rem">
+          <span data-i18n="pr-more-btn">Parler à un expert</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ SECURITY + FAQ ══ -->
+<section class="security" id="security">
+  <div class="security-inner">
+
+    <div class="reveal">
+      <div class="section-tag" data-i18n="sec-tag">Sécurité</div>
+      <h2 class="section-title" data-i18n="sec-title">Vos recettes et procédures restent les vôtres. Point.</h2>
+      <p class="section-sub" data-i18n="sec-sub">Nous comprenons que vos documents qualité sont confidentiels et stratégiques. L'architecture de l'assistant a été conçue avec cette contrainte comme priorité absolue.</p>
+
+      <div class="security-badges">
+        <div class="sec-badge">
+          <div class="sec-badge-icon">🔐</div>
+          <div class="sec-badge-title" data-i18n="sb1-title">Chiffrement bout-en-bout</div>
+          <div class="sec-badge-desc" data-i18n="sb1-desc">Transit et stockage chiffrés via les standards Microsoft Azure.</div>
+        </div>
+        <div class="sec-badge">
+          <div class="sec-badge-icon">🏭</div>
+          <div class="sec-badge-title" data-i18n="sb2-title">Données dans votre infra</div>
+          <div class="sec-badge-desc" data-i18n="sb2-desc">Aucun document stocké de façon permanente hors de votre M365.</div>
+        </div>
+        <div class="sec-badge">
+          <div class="sec-badge-icon">🚫</div>
+          <div class="sec-badge-title" data-i18n="sb3-title">Zéro entraînement IA</div>
+          <div class="sec-badge-desc" data-i18n="sb3-desc">Vos contenus ne servent jamais à améliorer des modèles publics.</div>
+        </div>
+        <div class="sec-badge">
+          <div class="sec-badge-icon">👤</div>
+          <div class="sec-badge-title" data-i18n="sb4-title">Accès contrôlé</div>
+          <div class="sec-badge-desc" data-i18n="sb4-desc">Permissions granulaires gérées par votre équipe TI via M365.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="section-tag" data-i18n="faq-tag">FAQ</div>
+      <h2 class="section-title" style="margin-bottom:1.5rem" data-i18n="faq-title">Questions fréquentes</h2>
+
+      <div class="faq">
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-i18n="faq-q1">Est-ce que nos recettes ou procédures confidentielles peuvent être exposées ?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner" data-i18n="faq-a1">Non. L'assistant opère dans les limites strictes de votre environnement Microsoft 365. Vos documents ne quittent jamais votre infrastructure et ne sont pas stockés sur des serveurs externes de façon permanente.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-i18n="faq-q2">Notre département TI doit-il faire une configuration complexe ?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner" data-i18n="faq-a2">Non. La connexion à SharePoint/OneDrive se fait via l'authentification OAuth standard de Microsoft 365. Aucun nouveau serveur, aucun VPN supplémentaire, aucune installation locale. Notre équipe s'occupe de toute la coordination TI.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-i18n="faq-q3">L'IA peut-elle modifier nos documents automatiquement ?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner" data-i18n="faq-a3">Jamais. L'assistant est configuré en mode lecture seule. Il détecte et signale les écarts, mais toute correction est effectuée manuellement par votre équipe qualité. C'est un principe fondamental pour garantir la validité lors des audits.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-i18n="faq-q4">La solution fonctionne-t-elle avec la future Édition 10 de SQF ?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner" data-i18n="faq-a4">Oui. Les mises à jour de la base de référence normative (passage de l'Édition 9 à l'Édition 10) sont incluses dans l'abonnement mensuel. Vous n'avez aucune action à effectuer.</div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span data-i18n="faq-q5">Combien de temps prend le déploiement initial ?</span>
+            <span class="faq-chevron">▼</span>
+          </button>
+          <div class="faq-a">
+            <div class="faq-a-inner" data-i18n="faq-a5">Quelques jours seulement. Notre processus d'implémentation est rapide et sans friction : connexion à votre M365, configuration de l'assistant, et premier rapport de non-conformités — le tout en moins d'une semaine. Pas de projet de 6 à 8 semaines.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ CTA FOOTER ══ -->
+<section class="cta-footer" id="demo">
+  <div class="cta-blob"></div>
+  <div style="position:relative;z-index:1">
+    <div class="section-tag" style="margin-bottom:1.5rem" data-i18n="cta-tag">Prêt à commencer ?</div>
+    <h2 data-i18n-html="cta-title">Transformez votre prochain<br>audit SQF dès aujourd'hui.</h2>
+    <p data-i18n="cta-p">Réservez une démo de 15 minutes avec notre équipe. Nous vous montrons en direct comment l'assistant analyse vos documents et génère votre premier rapport d'écarts.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="mailto:patrick@sonoria.ca?subject=Demande%20de%20d%C3%A9mo%20-%20Assistant%20IA%20SQF">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 8 9 6 9-6"/></svg>
+        <span data-i18n="cta-btn1">Réserver une démo flash (15 min)</span>
+      </a>
+      <a class="btn-secondary" href="tel:+15146000000">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 013 .92h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        <span data-i18n="cta-btn2">Nous appeler</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ FOOTER ══ -->
+<footer>
+  <a class="nav-logo" href="#" style="font-size:1rem">CERTIA <span class="logo-badge">SQF</span></a>
+  <div style="display:flex;gap:2rem;flex-wrap:wrap">
+    <a href="#features" data-i18n="ft-features">Fonctionnalités</a>
+    <a href="#pricing"  data-i18n="ft-pricing">Tarification</a>
+    <a href="#security" data-i18n="ft-security">Sécurité</a>
+    <a href="mailto:patrick@sonoria.ca" data-i18n="ft-contact">Contact</a>
+  </div>
+  <div class="footer-copy" data-i18n="ft-copy">© 2025 Certia SQF · Tous droits réservés</div>
+</footer>
+
+<script>
+  /* ── TRANSLATIONS ── */
+  const t = {
+    fr: {
+      'nav-cta':      'Réserver une démo',
+      'hero-badge':   "Propulsé par l'IA · SQF Édition 9",
+      'hero-h1':      'Préparez votre prochain<br>audit SQF en <span class="gradient-text">4&times; moins de temps.</span>',
+      'hero-sub':     "L'assistant IA qui scanne votre SharePoint pour éliminer les non-conformités.<br><strong>Simple, sécurisé, pour 400 $ / mois. Implémentation en quelques jours.</strong>",
+      'hero-btn1':    'Réserver une démo flash (15 min)',
+      'hero-btn2':    'Voir les fonctionnalités',
+      'stat-1':       'Réduction du temps de révision',
+      'stat-2':       'Norme SQF couverte',
+      'stat-3':       'Contrôle humain conservé',
+      'stat-4':       'SharePoint / OneDrive natif',
+      'pain-tag':     'Le Problème',
+      'pain-title':   "La conformité SQF ne devrait pas coûter des semaines de travail.",
+      'pain-sub':     "Chaque année, votre équipe qualité perd des semaines entières à comparer ligne par ligne vos procédures avec la norme SQF. C'est lent, frustrant, et source d'erreurs.",
+      'pain-i1':      "60+ heures de relecture manuelle et répétitive par cycle d'audit",
+      'pain-i2':      'Comparaison humaine laborieuse entre documents internes et la norme',
+      'pain-i3':      "Travail frustrant qui prive l'équipe de tâches à haute valeur ajoutée",
+      'pain-i4':      "Risque d'oubli ou d'omission détecté trop tard — lors de l'audit",
+      'pain-i5':      "Processus étalé sur toute l'année, sans vue d'ensemble claire",
+      'card-title':   'Temps de révision — Avant vs Après',
+      'bar-1':        'Révision manuelle traditionnelle',
+      'bar-2':        "Avec l'Assistant IA SQF",
+      'bar-3':        'Analyse initiale des écarts',
+      'saving-label': 'Économie de temps estimée',
+      'saving-value': '48 heures / audit',
+      'saving-badge': '↓ 80 % de temps',
+      'feat-tag':     'Fonctionnalités',
+      'feat-title':   'Tout ce dont votre équipe qualité a besoin. Rien de plus.',
+      'feat-sub':     'Quatre piliers conçus pour éliminer les non-conformités sans perturber vos opérations ni votre infrastructure TI existante.',
+      'f1-tag':       'Feature principale',
+      'f1-title':     'Audit de Conformité Automatisé<br><span style="color:var(--blue-400);">SQF Édition 9/10</span>',
+      'f1-desc':      "L'assistant croise instantanément l'ensemble de vos manuels qualité, procédures et programmes préalables avec les exigences strictes de la norme SQF. Il détecte les écarts, les formulations floues ou les clauses manquantes en quelques minutes plutôt qu'en plusieurs semaines.",
+      'f1-b1':        'Analyse croisée complète des documents',
+      'f1-b2':        'Détection des clauses manquantes',
+      'f1-b3':        'Signalement des formulations non conformes',
+      'f1-b4':        'Rapport structuré par section SQF',
+      'f1-b5':        "Mise à jour automatique vers l'édition 10",
+      'f2-title':     'Synchronisation SharePoint & OneDrive Sécurisée',
+      'f2-desc':      "Pas de logiciel à installer, pas de serveurs à configurer, et surtout : aucun document à déplacer. L'assistant se connecte de manière sécurisée à votre environnement Microsoft 365 existant en 3 clics. Vos documents restent là où ils sont.",
+      'f2-tag':       'Zéro friction TI',
+      'f3-title':     'Interface de Révision avec Human-in-the-Loop',
+      'f3-desc':      "Un tableau de bord clair qui liste chaque point à corriger sous forme d'alertes visuelles. L'IA agit comme un relecteur ultra-précis : elle signale et suggère, mais ne modifie jamais vos documents d'origine. Votre équipe garde le contrôle final à 100 %.",
+      'f3-tag':       'Contrôle humain total',
+      'f4-title':     'Protection Étanche des Données — Enterprise Grade',
+      'f4-desc':      "Les données de votre usine sont strictement confidentielles. Aucun de vos documents ou procédures n'est partagé, stocké de façon permanente à l'extérieur de votre infrastructure, ou utilisé pour entraîner des modèles d'intelligence artificielle publics.",
+      'f4-tag':       'Conformité données',
+      'how-tag':      'Comment ça marche',
+      'how-title':    'Opérationnel en 3 étapes',
+      'how-sub':      'De la connexion à votre premier rapport de non-conformités, en seulement quelques jours.',
+      's1-title':     'Connexion Microsoft 365',
+      's1-desc':      "Autorisez l'accès sécurisé à votre SharePoint/OneDrive en 3 clics. Zéro installation, zéro déplacement de fichiers.",
+      's2-title':     'Analyse IA automatique',
+      's2-desc':      "L'assistant scanne tous vos documents et les croise avec la norme SQF. L'analyse complète prend moins de 30 minutes.",
+      's3-title':     "Rapport d'écarts clair",
+      's3-desc':      'Votre équipe reçoit un tableau de bord précis listant chaque non-conformité à corriger, priorisée et contextualisée.',
+      'pr-tag':       'Tarification',
+      'pr-title':     'Un seul plan. Tout inclus.',
+      'pr-sub':       "Pas de surprises. Pas de frais cachés. Un abonnement mensuel qui couvre tout ce dont vous avez besoin pour rester en conformité.",
+      'pr-pill':      '⚡ Plan Unique',
+      'pr-label':     'Abonnement mensuel',
+      'pr-period':    'par mois + taxes',
+      'pr-i1':        'Connexion SharePoint incluse',
+      'pr-i2':        'Analyses illimitées',
+      'pr-i3':        'Mises à jour vers SQF Édition 10',
+      'pr-i4':        'Tableau de bord Human-in-the-Loop',
+      'pr-i5':        'Support prioritaire',
+      'pr-i6':        'Sécurité Enterprise-Grade',
+      'pr-i7':        "Aucune donnée partagée à l'extérieur",
+      'pr-i8':        'Implémentation en quelques jours',
+      'pr-btn':       'Démarrer maintenant',
+      'pr-note':      'Sans engagement · Annulable en tout temps',
+      'pr-more-label':'Besoin de plus ?',
+      'pr-more-desc': "Support additionnel, extensions de fonctionnalités, formation d'équipe ou intégration de nouvelles normes ISO — nous pouvons discuter d'un forfait personnalisé.",
+      'pr-more-btn':  'Parler à un expert',
+      'sec-tag':      'Sécurité',
+      'sec-title':    'Vos recettes et procédures restent les vôtres. Point.',
+      'sec-sub':      "Nous comprenons que vos documents qualité sont confidentiels et stratégiques. L'architecture de l'assistant a été conçue avec cette contrainte comme priorité absolue.",
+      'sb1-title':    'Chiffrement bout-en-bout',
+      'sb1-desc':     'Transit et stockage chiffrés via les standards Microsoft Azure.',
+      'sb2-title':    'Données dans votre infra',
+      'sb2-desc':     'Aucun document stocké de façon permanente hors de votre M365.',
+      'sb3-title':    'Zéro entraînement IA',
+      'sb3-desc':     'Vos contenus ne servent jamais à améliorer des modèles publics.',
+      'sb4-title':    'Accès contrôlé',
+      'sb4-desc':     'Permissions granulaires gérées par votre équipe TI via M365.',
+      'faq-tag':      'FAQ',
+      'faq-title':    'Questions fréquentes',
+      'faq-q1':       'Est-ce que nos recettes ou procédures confidentielles peuvent être exposées ?',
+      'faq-a1':       "Non. L'assistant opère dans les limites strictes de votre environnement Microsoft 365. Vos documents ne quittent jamais votre infrastructure et ne sont pas stockés sur des serveurs externes de façon permanente.",
+      'faq-q2':       'Notre département TI doit-il faire une configuration complexe ?',
+      'faq-a2':       "Non. La connexion à SharePoint/OneDrive se fait via l'authentification OAuth standard de Microsoft 365. Aucun nouveau serveur, aucun VPN supplémentaire, aucune installation locale. Notre équipe s'occupe de toute la coordination TI.",
+      'faq-q3':       "L'IA peut-elle modifier nos documents automatiquement ?",
+      'faq-a3':       "Jamais. L'assistant est configuré en mode lecture seule. Il détecte et signale les écarts, mais toute correction est effectuée manuellement par votre équipe qualité. C'est un principe fondamental pour garantir la validité lors des audits.",
+      'faq-q4':       'La solution fonctionne-t-elle avec la future Édition 10 de SQF ?',
+      'faq-a4':       "Oui. Les mises à jour de la base de référence normative (passage de l'Édition 9 à l'Édition 10) sont incluses dans l'abonnement mensuel. Vous n'avez aucune action à effectuer.",
+      'faq-q5':       'Combien de temps prend le déploiement initial ?',
+      'faq-a5':       "Quelques jours seulement. Notre processus d'implémentation est rapide et sans friction : connexion à votre M365, configuration de l'assistant, et premier rapport de non-conformités — le tout en moins d'une semaine. Pas de projet de 6 à 8 semaines.",
+      'cta-tag':      'Prêt à commencer ?',
+      'cta-title':    "Transformez votre prochain<br>audit SQF dès aujourd'hui.",
+      'cta-p':        "Réservez une démo de 15 minutes avec notre équipe. Nous vous montrons en direct comment l'assistant analyse vos documents et génère votre premier rapport d'écarts.",
+      'cta-btn1':     'Réserver une démo flash (15 min)',
+      'cta-btn2':     'Nous appeler',
+      'ft-features':  'Fonctionnalités',
+      'ft-pricing':   'Tarification',
+      'ft-security':  'Sécurité',
+      'ft-contact':   'Contact',
+      'ft-copy':      '© 2025 Certia SQF · Tous droits réservés',
+    },
+    en: {
+      'nav-cta':      'Book a demo',
+      'hero-badge':   'Powered by AI · SQF Edition 9',
+      'hero-h1':      'Prepare your next<br>SQF audit in <span class="gradient-text">4&times; less time.</span>',
+      'hero-sub':     'The AI assistant that scans your SharePoint to eliminate non-conformities.<br><strong>Simple, secure, $400 / month. Implementation in just a few days.</strong>',
+      'hero-btn1':    'Book a flash demo (15 min)',
+      'hero-btn2':    'See features',
+      'stat-1':       'Review time reduction',
+      'stat-2':       'SQF standard covered',
+      'stat-3':       'Human control retained',
+      'stat-4':       'Native SharePoint / OneDrive',
+      'pain-tag':     'The Problem',
+      'pain-title':   'SQF compliance should not cost weeks of work.',
+      'pain-sub':     "Every year, your quality team loses entire weeks comparing your procedures line by line with the SQF standard. It's slow, frustrating, and error-prone.",
+      'pain-i1':      '60+ hours of manual, repetitive review per audit cycle',
+      'pain-i2':      'Laborious human comparison between internal documents and the standard',
+      'pain-i3':      'Frustrating work that deprives the team of high-value tasks',
+      'pain-i4':      'Risk of missed items detected too late — during the audit',
+      'pain-i5':      'Year-round process with no clear overall view',
+      'card-title':   'Review Time — Before vs After',
+      'bar-1':        'Traditional manual review',
+      'bar-2':        'With SQF AI Assistant',
+      'bar-3':        'Initial gap analysis',
+      'saving-label': 'Estimated time savings',
+      'saving-value': '48 hours / audit',
+      'saving-badge': '↓ 80% time saved',
+      'feat-tag':     'Features',
+      'feat-title':   'Everything your quality team needs. Nothing more.',
+      'feat-sub':     'Four pillars designed to eliminate non-conformities without disrupting your operations or existing IT infrastructure.',
+      'f1-tag':       'Main Feature',
+      'f1-title':     'Automated Compliance Audit<br><span style="color:var(--blue-400);">SQF Edition 9/10</span>',
+      'f1-desc':      'The assistant instantly cross-references all your quality manuals, procedures and prerequisite programs against the strict SQF standard requirements. It detects gaps, vague wording, or missing clauses in minutes rather than weeks.',
+      'f1-b1':        'Complete cross-document analysis',
+      'f1-b2':        'Detection of missing clauses',
+      'f1-b3':        'Flagging of non-compliant wording',
+      'f1-b4':        'Structured report by SQF section',
+      'f1-b5':        'Automatic update to Edition 10',
+      'f2-title':     'Secure SharePoint & OneDrive Sync',
+      'f2-desc':      'No software to install, no servers to configure, and most importantly: no documents to move. The assistant securely connects to your existing Microsoft 365 environment in 3 clicks. Your documents stay where they are.',
+      'f2-tag':       'Zero IT Friction',
+      'f3-title':     'Review Interface with Human-in-the-Loop',
+      'f3-desc':      'A clear dashboard listing every point to correct as visual alerts. The AI acts as an ultra-precise reviewer: it flags and suggests, but never modifies your original documents. Your team keeps 100% final control.',
+      'f3-tag':       'Total Human Control',
+      'f4-title':     'Airtight Data Protection — Enterprise Grade',
+      'f4-desc':      'Your plant data is strictly confidential. None of your documents or procedures are shared, permanently stored outside your infrastructure, or used to train public AI models.',
+      'f4-tag':       'Data Compliance',
+      'how-tag':      'How it works',
+      'how-title':    'Up and running in 3 steps',
+      'how-sub':      'From connection to your first non-conformity report, in just a few days.',
+      's1-title':     'Microsoft 365 Connection',
+      's1-desc':      'Authorize secure access to your SharePoint/OneDrive in 3 clicks. Zero installation, zero file migration.',
+      's2-title':     'Automatic AI Analysis',
+      's2-desc':      'The assistant scans all your documents and cross-references them with the SQF standard. The complete analysis takes less than 30 minutes.',
+      's3-title':     'Clear Gap Report',
+      's3-desc':      'Your team receives a precise dashboard listing every non-conformity to correct, prioritized and contextualized.',
+      'pr-tag':       'Pricing',
+      'pr-title':     'One plan. All inclusive.',
+      'pr-sub':       'No surprises. No hidden fees. A monthly subscription that covers everything you need to stay compliant.',
+      'pr-pill':      '⚡ Single Plan',
+      'pr-label':     'Monthly subscription',
+      'pr-period':    'per month + taxes',
+      'pr-i1':        'SharePoint connection included',
+      'pr-i2':        'Unlimited analyses',
+      'pr-i3':        'Updates to SQF Edition 10',
+      'pr-i4':        'Human-in-the-Loop dashboard',
+      'pr-i5':        'Priority support',
+      'pr-i6':        'Enterprise-Grade security',
+      'pr-i7':        'No data shared externally',
+      'pr-i8':        'Implementation in just a few days',
+      'pr-btn':       'Get started now',
+      'pr-note':      'No commitment · Cancel anytime',
+      'pr-more-label':'Need more?',
+      'pr-more-desc': 'Additional support, feature extensions, team training, or integration of new ISO standards — we can discuss a custom package.',
+      'pr-more-btn':  'Talk to an expert',
+      'sec-tag':      'Security',
+      'sec-title':    'Your recipes and procedures stay yours. Period.',
+      'sec-sub':      "We understand your quality documents are confidential and strategic. The assistant's architecture was designed with this constraint as the absolute priority.",
+      'sb1-title':    'End-to-end encryption',
+      'sb1-desc':     'Transit and storage encrypted via Microsoft Azure standards.',
+      'sb2-title':    'Data in your infra',
+      'sb2-desc':     'No document permanently stored outside your M365.',
+      'sb3-title':    'Zero AI training',
+      'sb3-desc':     'Your content is never used to improve public models.',
+      'sb4-title':    'Controlled access',
+      'sb4-desc':     'Granular permissions managed by your IT team via M365.',
+      'faq-tag':      'FAQ',
+      'faq-title':    'Frequently asked questions',
+      'faq-q1':       'Can our confidential recipes or procedures be exposed?',
+      'faq-a1':       'No. The assistant operates strictly within your Microsoft 365 environment. Your documents never leave your infrastructure and are not permanently stored on external servers.',
+      'faq-q2':       'Does our IT department need to do complex configuration?',
+      'faq-a2':       "No. The SharePoint/OneDrive connection is made via Microsoft 365's standard OAuth authentication. No new servers, no additional VPN, no local installation. Our team handles all IT coordination.",
+      'faq-q3':       'Can the AI automatically modify our documents?',
+      'faq-a3':       'Never. The assistant is configured in read-only mode. It detects and flags gaps, but all corrections are made manually by your quality team. This is a fundamental principle to ensure validity during audits.',
+      'faq-q4':       'Does the solution work with the future SQF Edition 10?',
+      'faq-a4':       'Yes. Updates to the normative reference base (transition from Edition 9 to Edition 10) are included in the monthly subscription. No action required on your part.',
+      'faq-q5':       'How long does initial deployment take?',
+      'faq-a5':       'Just a few days. Our implementation process is fast and frictionless: connect to your M365, configure the assistant, and get your first non-conformity report — all within a week. No 6-to-8-week project.',
+      'cta-tag':      'Ready to start?',
+      'cta-title':    'Transform your next<br>SQF audit starting today.',
+      'cta-p':        'Book a 15-minute demo with our team. We show you live how the assistant analyzes your documents and generates your first gap report.',
+      'cta-btn1':     'Book a flash demo (15 min)',
+      'cta-btn2':     'Call us',
+      'ft-features':  'Features',
+      'ft-pricing':   'Pricing',
+      'ft-security':  'Security',
+      'ft-contact':   'Contact',
+      'ft-copy':      '© 2025 Certia SQF · All rights reserved',
+    }
+  };
+
+  let currentLang = 'fr';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.documentElement.lang = lang;
+    document.getElementById('lang-btn-fr').className = lang === 'fr' ? 'lang-active' : '';
+    document.getElementById('lang-btn-en').className = lang === 'en' ? 'lang-active' : '';
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[lang][key] !== undefined) el.textContent = t[lang][key];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const key = el.getAttribute('data-i18n-html');
+      if (t[lang][key] !== undefined) el.innerHTML = t[lang][key];
+    });
+  }
+
+  function toggleLang() {
+    setLang(currentLang === 'fr' ? 'en' : 'fr');
+  }
+
+  /* ── FAQ ── */
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  /* ── SCROLL REVEAL ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
